@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @TestMethodOrder(OrderAnnotation.class)
 class HeterogeneousMaxHolderTest {
-    private HeterogeneousMaxHolder heterogeneousMaxHolder = new HeterogeneousMaxHolder();
+    private final HeterogeneousMaxHolder heterogeneousMaxHolder = new HeterogeneousMaxHolder();
 
     @Test
     @Order(1)
