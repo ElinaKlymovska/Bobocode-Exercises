@@ -1,6 +1,8 @@
 package com.bobocode.cs;
 
 import com.bobocode.util.ExerciseNotCompletedException;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * {@link LinkedQueue} implements FIFO {@link Queue}, using singly linked nodes. Nodes are stores in instances of nested
@@ -16,13 +18,29 @@ import com.bobocode.util.ExerciseNotCompletedException;
  */
 public class LinkedQueue<T> implements Queue<T> {
 
-    /**
-     * Adds an element to the end of the queue.
-     *
-     * @param element the element to add
-     */
+    @Getter
+    @Setter
+    static class Node<T> {
+        T value;
+        Node<T> next;
+
+        public Node(T value) {
+            this.value = value;
+        }
+    }
+
+    private Node<T> head;
+    private int size;
+    private Node<T> last;
+
     public void add(T element) {
-        throw new ExerciseNotCompletedException(); // todo: implement this method
+        if (size == 0) {
+            head = new Node<>(element);
+            last = head;
+        } else {
+            last.setNext(new Node<>(element));
+        }
+        size++;
     }
 
     /**
@@ -31,7 +49,12 @@ public class LinkedQueue<T> implements Queue<T> {
      * @return an element that was retrieved from the head or null if queue is empty
      */
     public T poll() {
-        throw new ExerciseNotCompletedException(); // todo: implement this method
+        if (size == 0) return null;
+        T elem = head.getValue();
+        head = head.getNext();
+        size--;
+        if (size==0) last=null;
+        return elem;
     }
 
     /**
@@ -40,7 +63,7 @@ public class LinkedQueue<T> implements Queue<T> {
      * @return an integer value that is a size of queue
      */
     public int size() {
-        throw new ExerciseNotCompletedException(); // todo: implement this method
+        return size;
     }
 
     /**
@@ -49,6 +72,6 @@ public class LinkedQueue<T> implements Queue<T> {
      * @return {@code true} if the queue is empty, returns {@code false} if it's not
      */
     public boolean isEmpty() {
-        throw new ExerciseNotCompletedException(); // todo: implement this method
+        return size == 0;
     }
 }
