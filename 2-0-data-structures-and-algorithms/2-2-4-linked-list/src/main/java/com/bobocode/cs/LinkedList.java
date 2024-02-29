@@ -162,7 +162,19 @@ public class LinkedList<T> implements List<T> {
      */
     @Override
     public T remove(int index) {
-        throw new ExerciseNotCompletedException(); // todo: implement this method
+        if (first == null) throw new IndexOutOfBoundsException();
+
+        if (index == 0) {
+            T value = first.getValue();
+            first = first.getNext();
+            size--;
+            return value;
+        }
+        Node<T> nodeByIndex = iterateNodes(index - 1);
+        Node<T> next = nodeByIndex.getNext();
+        nodeByIndex.setNext(next.getNext());
+        size--;
+        return next.getValue();
     }
 
 
@@ -173,7 +185,17 @@ public class LinkedList<T> implements List<T> {
      */
     @Override
     public boolean contains(T element) {
-        throw new ExerciseNotCompletedException(); // todo: implement this method
+        if (first == null){
+            return false;
+        }
+        Node<T> current = first;
+        while (!current.getValue().equals(element)){
+            if(current.equals(last)){
+                return false;
+            }
+            current = current.getNext();
+        }
+        return true;
     }
 
     /**
@@ -183,7 +205,7 @@ public class LinkedList<T> implements List<T> {
      */
     @Override
     public boolean isEmpty() {
-        throw new ExerciseNotCompletedException(); // todo: implement this method
+        return first == null;
     }
 
     /**
@@ -193,7 +215,7 @@ public class LinkedList<T> implements List<T> {
      */
     @Override
     public int size() {
-        throw new ExerciseNotCompletedException(); // todo: implement this method
+        return size;
     }
 
     /**
@@ -201,7 +223,9 @@ public class LinkedList<T> implements List<T> {
      */
     @Override
     public void clear() {
-        throw new ExerciseNotCompletedException(); // todo: implement this method
+        first = null;
+        last = null;
+        size = 0;
     }
 
     private Node<T> iterateNodes(int index) {
