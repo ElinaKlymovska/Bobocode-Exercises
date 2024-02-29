@@ -1,7 +1,10 @@
 package com.bobocode.cs;
 
-
 import com.bobocode.util.ExerciseNotCompletedException;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * {@link LinkedList} is a list implementation that is based on singly linked generic nodes. A node is implemented as
@@ -14,7 +17,25 @@ import com.bobocode.util.ExerciseNotCompletedException;
  * @author Taras Boychuk
  * @author Serhii Hryhus
  */
+@Setter
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
 public class LinkedList<T> implements List<T> {
+    @Getter
+    @Setter
+    static class Node<T> {
+        T value;
+        Node<T> next;
+
+        public Node(T value) {
+            this.value = value;
+        }
+    }
+
+    private Node<T> first;
+    private Node<T> last;
+    private int size;
 
     /**
      * This method creates a list of provided elements
@@ -24,7 +45,16 @@ public class LinkedList<T> implements List<T> {
      * @return a new list of elements the were passed as method parameters
      */
     public static <T> LinkedList<T> of(T... elements) {
-        throw new ExerciseNotCompletedException(); // todo: implement this method
+        Node<T> first = new Node<>(elements[0]);
+        Node<T> last = new Node<>(elements[elements.length - 1]);
+
+        Node<T> currant = first;
+        for (int i = 1; i < elements.length; i++) {
+            Node<T> newNode = new Node<>(elements[i]);
+            currant.setNext(newNode);
+            currant = newNode;
+        }
+        return new LinkedList<>(first, last, elements.length);
     }
 
     /**
@@ -34,7 +64,15 @@ public class LinkedList<T> implements List<T> {
      */
     @Override
     public void add(T element) {
-        throw new ExerciseNotCompletedException(); // todo: implement this method
+        Node<T> newNode = new Node<>(element);
+        if (size == 0) {
+            first = newNode;
+            last = first;
+        } else {
+            last.setNext(newNode);
+            last = newNode;
+        }
+        size++;
     }
 
     /**
@@ -46,7 +84,28 @@ public class LinkedList<T> implements List<T> {
      */
     @Override
     public void add(int index, T element) {
-        throw new ExerciseNotCompletedException(); // todo: implement this method
+        if (index > size || index < 0) throw new IndexOutOfBoundsException();
+        Node<T> newNode = new Node<>(element);
+        Node<T> currant = first;
+        if (index == 0) {
+            newNode.setNext(first);
+            first = newNode;
+        } else if (index == size - 1) {
+            last.setNext(newNode);
+            last = newNode;
+        } else {
+            int countIteration = 0;
+            while (true) {
+                if (index - 1 == countIteration) {
+                    newNode.setNext(currant.getNext());
+                    currant.setNext(newNode);
+                    break;
+                }
+                currant = currant.getNext();
+                countIteration++;
+            }
+        }
+        size++;
     }
 
     /**
@@ -58,7 +117,18 @@ public class LinkedList<T> implements List<T> {
      */
     @Override
     public void set(int index, T element) {
-        throw new ExerciseNotCompletedException(); // todo: implement this method
+        int countIteration = 0;
+        Node<T> newNode = new Node<>(element);
+        Node<T> currant = first;
+        while (true) {
+            if (index == countIteration) {
+                newNode.setNext(currant.getNext());
+                currant.setNext(newNode);
+                break;
+            }
+            currant = currant.getNext();
+            countIteration++;
+        }
     }
 
     /**

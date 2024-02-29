@@ -2,6 +2,7 @@ package com.bobocode.cs;
 
 import com.bobocode.util.ExerciseNotCompletedException;
 
+import java.util.LinkedList;
 import java.util.function.Consumer;
 
 /**
@@ -17,7 +18,6 @@ import java.util.function.Consumer;
  * @author Maksym Stasiuk
  */
 public class RecursiveBinarySearchTree<T extends Comparable<T>> implements BinarySearchTree<T> {
-
     public static <T extends Comparable<T>> RecursiveBinarySearchTree<T> of(T... elements) {
         throw new ExerciseNotCompletedException();
     }
