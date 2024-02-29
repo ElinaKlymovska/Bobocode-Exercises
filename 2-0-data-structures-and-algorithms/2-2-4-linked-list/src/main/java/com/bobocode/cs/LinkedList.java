@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.NoSuchElementException;
+
 /**
  * {@link LinkedList} is a list implementation that is based on singly linked generic nodes. A node is implemented as
  * inner static class {@link Node<T>}.
@@ -48,11 +50,11 @@ public class LinkedList<T> implements List<T> {
         Node<T> first = new Node<>(elements[0]);
         Node<T> last = new Node<>(elements[elements.length - 1]);
 
-        Node<T> currant = first;
+        Node<T> current = first;
         for (int i = 1; i < elements.length; i++) {
             Node<T> newNode = new Node<>(elements[i]);
-            currant.setNext(newNode);
-            currant = newNode;
+            current.setNext(newNode);
+            current = newNode;
         }
         return new LinkedList<>(first, last, elements.length);
     }
@@ -84,9 +86,8 @@ public class LinkedList<T> implements List<T> {
      */
     @Override
     public void add(int index, T element) {
-        if (index > size || index < 0) throw new IndexOutOfBoundsException();
+        if (index < 0) throw new IndexOutOfBoundsException();
         Node<T> newNode = new Node<>(element);
-        Node<T> currant = first;
         if (index == 0) {
             newNode.setNext(first);
             first = newNode;
@@ -94,16 +95,9 @@ public class LinkedList<T> implements List<T> {
             last.setNext(newNode);
             last = newNode;
         } else {
-            int countIteration = 0;
-            while (true) {
-                if (index - 1 == countIteration) {
-                    newNode.setNext(currant.getNext());
-                    currant.setNext(newNode);
-                    break;
-                }
-                currant = currant.getNext();
-                countIteration++;
-            }
+            Node<T> nodeByIndex = iterateNodes(index - 1);
+            newNode.setNext(nodeByIndex.getNext());
+            nodeByIndex.setNext(newNode);
         }
         size++;
     }
@@ -117,18 +111,10 @@ public class LinkedList<T> implements List<T> {
      */
     @Override
     public void set(int index, T element) {
-        int countIteration = 0;
-        Node<T> newNode = new Node<>(element);
-        Node<T> currant = first;
-        while (true) {
-            if (index == countIteration) {
-                newNode.setNext(currant.getNext());
-                currant.setNext(newNode);
-                break;
-            }
-            currant = currant.getNext();
-            countIteration++;
-        }
+        if (first == null) throw new IndexOutOfBoundsException();
+
+        Node<T> nodeByIndex = iterateNodes(index);
+        nodeByIndex.setValue(element);
     }
 
     /**
@@ -140,7 +126,7 @@ public class LinkedList<T> implements List<T> {
      */
     @Override
     public T get(int index) {
-        throw new ExerciseNotCompletedException(); // todo: implement this method
+        return iterateNodes(index).getValue();
     }
 
     /**
@@ -151,7 +137,8 @@ public class LinkedList<T> implements List<T> {
      */
     @Override
     public T getFirst() {
-        throw new ExerciseNotCompletedException(); // todo: implement this method
+        if (first == null) throw new NoSuchElementException();
+        return first.getValue();
     }
 
     /**
@@ -162,7 +149,8 @@ public class LinkedList<T> implements List<T> {
      */
     @Override
     public T getLast() {
-        throw new ExerciseNotCompletedException(); // todo: implement this method
+        if (first == null) throw new NoSuchElementException();
+        return last.getValue();
     }
 
     /**
@@ -214,5 +202,14 @@ public class LinkedList<T> implements List<T> {
     @Override
     public void clear() {
         throw new ExerciseNotCompletedException(); // todo: implement this method
+    }
+
+    private Node<T> iterateNodes(int index) {
+        if (index >= size || index < 0) throw new IndexOutOfBoundsException();
+        Node<T> current = first;
+        for (int i = 0; i < index; i++) {
+            current = current.getNext();
+        }
+        return current;
     }
 }
