@@ -1,6 +1,5 @@
 package com.bobocode.cs;
 
-import com.bobocode.util.ExerciseNotCompletedException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -47,15 +46,21 @@ public class LinkedList<T> implements List<T> {
      * @return a new list of elements the were passed as method parameters
      */
     public static <T> LinkedList<T> of(T... elements) {
-        Node<T> first = new Node<>(elements[0]);
-        Node<T> last = new Node<>(elements[elements.length - 1]);
+        if (elements.length == 0) {
+            throw new IllegalArgumentException("Cannot create a LinkedList with no elements");
+        }
 
+        Node<T> first = new Node<>(elements[0]);
         Node<T> current = first;
+
         for (int i = 1; i < elements.length; i++) {
             Node<T> newNode = new Node<>(elements[i]);
             current.setNext(newNode);
             current = newNode;
         }
+
+        Node<T> last = current;
+
         return new LinkedList<>(first, last, elements.length);
     }
 
@@ -67,13 +72,15 @@ public class LinkedList<T> implements List<T> {
     @Override
     public void add(T element) {
         Node<T> newNode = new Node<>(element);
-        if (size == 0) {
+
+        if (isEmpty()) {
             first = newNode;
             last = first;
         } else {
             last.setNext(newNode);
             last = newNode;
         }
+
         size++;
     }
 
@@ -86,18 +93,27 @@ public class LinkedList<T> implements List<T> {
      */
     @Override
     public void add(int index, T element) {
-        if (index < 0) throw new IndexOutOfBoundsException();
+        if (index < 0 || index > size) {
+            throw new IndexOutOfBoundsException("Invalid index: " + index);
+        }
+
         Node<T> newNode = new Node<>(element);
+
         if (index == 0) {
             newNode.setNext(first);
             first = newNode;
-        } else if (index == size - 1) {
-            last.setNext(newNode);
-            last = newNode;
+
+            if (size == 0) {
+                last = newNode;
+            }
         } else {
-            Node<T> nodeByIndex = iterateNodes(index - 1);
-            newNode.setNext(nodeByIndex.getNext());
-            nodeByIndex.setNext(newNode);
+            Node<T> nodeBeforeIndex = iterateNodes(index - 1);
+            newNode.setNext(nodeBeforeIndex.getNext());
+            nodeBeforeIndex.setNext(newNode);
+
+            if (index == size) {
+                last = newNode;
+            }
         }
         size++;
     }
@@ -111,7 +127,7 @@ public class LinkedList<T> implements List<T> {
      */
     @Override
     public void set(int index, T element) {
-        if (first == null) throw new IndexOutOfBoundsException();
+        if (isEmpty()) throw new IndexOutOfBoundsException("Cannot set elements in empty list");
 
         Node<T> nodeByIndex = iterateNodes(index);
         nodeByIndex.setValue(element);
@@ -137,7 +153,7 @@ public class LinkedList<T> implements List<T> {
      */
     @Override
     public T getFirst() {
-        if (first == null) throw new NoSuchElementException();
+        if (isEmpty()) throw new NoSuchElementException("The list is empty");
         return first.getValue();
     }
 
@@ -149,7 +165,7 @@ public class LinkedList<T> implements List<T> {
      */
     @Override
     public T getLast() {
-        if (first == null) throw new NoSuchElementException();
+        if (isEmpty()) throw new NoSuchElementException("The list is empty");
         return last.getValue();
     }
 
@@ -162,21 +178,28 @@ public class LinkedList<T> implements List<T> {
      */
     @Override
     public T remove(int index) {
-        if (first == null) throw new IndexOutOfBoundsException();
+        if (isEmpty()) throw new IndexOutOfBoundsException("Cannot remove elements in empty list");
+
+        T removedValue;
 
         if (index == 0) {
-            T value = first.getValue();
+            removedValue = first.getValue();
             first = first.getNext();
-            size--;
-            return value;
+            if (first == null) {
+                last = null;
+            }
+        } else {
+            Node<T> nodeBeforeIndex = iterateNodes(index - 1);
+            if (nodeBeforeIndex.getNext() == last) {
+                last = nodeBeforeIndex;
+            }
+            removedValue = nodeBeforeIndex.getNext().getValue();
+            nodeBeforeIndex.setNext(nodeBeforeIndex.getNext().getNext());
         }
-        Node<T> nodeByIndex = iterateNodes(index - 1);
-        Node<T> next = nodeByIndex.getNext();
-        nodeByIndex.setNext(next.getNext());
-        size--;
-        return next.getValue();
-    }
 
+        size--;
+        return removedValue;
+    }
 
     /**
      * Checks if a specific exists in he list
@@ -185,17 +208,14 @@ public class LinkedList<T> implements List<T> {
      */
     @Override
     public boolean contains(T element) {
-        if (first == null){
-            return false;
-        }
         Node<T> current = first;
-        while (!current.getValue().equals(element)){
-            if(current.equals(last)){
-                return false;
+        while (current != null) {
+            if (current.getValue().equals(element)) {
+                return true;
             }
             current = current.getNext();
         }
-        return true;
+        return false;
     }
 
     /**
