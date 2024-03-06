@@ -1,8 +1,12 @@
 package com.bobocode.cs;
 
 import com.bobocode.util.ExerciseNotCompletedException;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import java.util.LinkedList;
+import java.util.Arrays;
 import java.util.function.Consumer;
 
 /**
@@ -17,9 +21,46 @@ import java.util.function.Consumer;
  * @author Taras Boychuk
  * @author Maksym Stasiuk
  */
+@AllArgsConstructor
+@NoArgsConstructor
 public class RecursiveBinarySearchTree<T extends Comparable<T>> implements BinarySearchTree<T> {
+    private Node<T> root;
+    private int size;
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    private static class Node<T> {
+        private T value;
+        private Node<T> right;
+        private Node<T> left;
+
+        public Node(T value) {
+            this.value = value;
+        }
+    }
+
     public static <T extends Comparable<T>> RecursiveBinarySearchTree<T> of(T... elements) {
-        throw new ExerciseNotCompletedException();
+        Node<T>[] nodes = Arrays.stream(elements).sorted().map(Node::new).toArray(Node[]::new);
+
+        int mid = nodes.length / 2;
+        Node<T> root = nodes[mid];
+
+        Node<T> head = root;
+
+        for (int i = 0; i < mid; i++) {
+            head.setLeft(nodes[i]);
+            head = head.getLeft();
+        }
+
+        head = root;
+
+        for (int i = mid + 1; i < nodes.length; i++) {
+            head.setRight(nodes[i]);
+            head = head.getRight();
+        }
+
+        return new RecursiveBinarySearchTree<>(root, elements.length);
     }
 
     @Override
