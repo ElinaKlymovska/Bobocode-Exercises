@@ -41,26 +41,56 @@ public class RecursiveBinarySearchTree<T extends Comparable<T>> implements Binar
     }
 
     public static <T extends Comparable<T>> RecursiveBinarySearchTree<T> of(T... elements) {
-        Node<T>[] nodes = Arrays.stream(elements).sorted().map(Node::new).toArray(Node[]::new);
+        if (elements == null || elements.length == 0) throw new NullPointerException();
 
-        int mid = nodes.length / 2;
-        Node<T> root = nodes[mid];
+        Node<T>[] nodes = createSortedNodes(elements);
 
-        Node<T> head = root;
-
-        for (int i = 0; i < mid; i++) {
-            head.setLeft(nodes[i]);
-            head = head.getLeft();
-        }
-
-        head = root;
-
-        for (int i = mid + 1; i < nodes.length; i++) {
-            head.setRight(nodes[i]);
-            head = head.getRight();
-        }
-
+        Node<T> root = nodes[nodes.length / 2];
+        buildBinarySearchTree(root, nodes);
         return new RecursiveBinarySearchTree<>(root, elements.length);
+    }
+
+    private static <T extends Comparable<T>> void buildBinarySearchTree(Node<T> parent, Node<T>[] nodes) {
+        switch (nodes.length) {
+            case 1 -> {
+                //do nothing
+            }
+            case 2 -> setChildNode(parent, nodes[1], parent.getValue().compareTo(nodes[1].getValue()) > 0);
+            case 3 -> {
+                parent.setLeft(nodes[0]);
+                parent.setRight(nodes[2]);
+            }
+            default -> buildSubTree(parent, nodes);
+        }
+    }
+
+    private static <T extends Comparable<T>> void setChildNode(Node<T> parent, Node<T> child, boolean isLeft) {
+        if (isLeft) {
+            parent.setLeft(child);
+        } else {
+            parent.setRight(child);
+        }
+    }
+
+    private static <T extends Comparable<T>> void buildSubTree(Node<T> parent, Node<T>[] nodes) {
+        int mid = nodes.length / 2;
+
+        Node<T> left = nodes[mid / 2];
+        parent.setLeft(left);
+
+        Node<T> right = nodes[mid + (mid / 2)];
+        parent.setRight(right);
+
+        buildBinarySearchTree(left, Arrays.copyOfRange(nodes, 0, mid));
+        buildBinarySearchTree(right, Arrays.copyOfRange(nodes, mid + (mid / 2), nodes.length));
+    }
+
+    private static <T extends Comparable<T>> Node<T>[] createSortedNodes(T[] elements) {
+        return Arrays.stream(elements)
+                .sorted()
+                .distinct()
+                .map(Node<T>::new)
+                .toArray(Node[]::new);
     }
 
     @Override
@@ -70,7 +100,19 @@ public class RecursiveBinarySearchTree<T extends Comparable<T>> implements Binar
 
     @Override
     public boolean contains(T element) {
-        throw new ExerciseNotCompletedException();
+        if (size == 0) return false;
+        if (element == null) throw new NullPointerException();
+
+        Node<T> head = root;
+        for (int i = 0; i < size; i++) {
+            if (element.equals(head.getValue())) return true;
+            if (element.compareTo(head.getValue()) < 0) {
+                head = head.getLeft();
+            } else {
+                head = head.getRight();
+            }
+        }
+        return false;
     }
 
     @Override
